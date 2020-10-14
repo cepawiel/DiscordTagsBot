@@ -1,6 +1,7 @@
 import discord
 import sys
 import traceback
+import os
 from collections import defaultdict
 from io import StringIO
 
@@ -169,7 +170,15 @@ class TagBot(discord.Client):
 
 
 
+# Main Program
 
-client = TagBot()
-client.run('NzY1MjM4ODU5NDA3Mjk0NDc1.X4R6OQ.y4nscXaRWJ1thtzY5UsuvviJNMg')
-#client.run(sys.argv[1])
+clienttoken = os.getenv('DISCORD_APIKEY')
+if clienttoken !=  None:
+    print("Using Discord Token: " + clienttoken)
+    client = TagBot()
+    client.run(clienttoken)
+
+else:
+    print("ERROR: DISCORD_APIKEY Environment Variable not set")
+    sys.exit(-1)
+
