@@ -1,4 +1,4 @@
 FROM python:3
 RUN pip install discord.py
-ADD main.py .
-CMD ["python", "./main.py"]
+RUN git clone https://github.com/cepawiel/DiscordTagsBot
+CMD ["python", "./DiscordTagsBot/main.py"]
