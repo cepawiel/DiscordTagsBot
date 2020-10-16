@@ -20,16 +20,27 @@ class TagBot(discord.Client):
 
     async def on_ready(self):
         print('Logged on as', self.user)
-        for chan in self.get_all_channels():
-            if chan.name == CHANNEL_NAME:
-                print("found tags in " + chan.guild.name)
-                await self.createTagsIfNecessary(chan)
-                await chan.edit(topic="!help -- tags you react to add you to it, removing react removes you")
-
+        print("Searching Channels:")
+        for channel in await self.getAllTagsChannels():
+                await self.createTagsIfNecessary(channel)
+                await channel.edit(topic="!help -- tags you react to add you to it, removing react removes you")
         print("Ready!")
 
+    async def getAllTagsChannels(self):
+        tags = []
+        for guild in self.guilds:
+            a = await self.getTagsChannel(guild)
+            if a != None:
+                tags.append(a)
+        return tags
+
+    async def getTagsChannel(self, guild):
+        for channel in guild.channels:
+            if channel.name == CHANNEL_NAME:
+                return channel
+        return None
+
     async def createTagsIfNecessary(self, channel):
-        print("Creating Tags")
         roles = channel.guild.roles
         member = channel.guild.get_member(self.user.id)
         bot_role = discord.utils.get(roles, name=member.name)
@@ -37,7 +48,7 @@ class TagBot(discord.Client):
         pos = roles.index(bot_role)
         roles = roles[1:pos]
 
-        tag_channel = await self.getTagChannel(channel.guild)
+        tag_channel = await self.getTagsChannel(channel.guild)
         messages = tag_channel.history(limit=100)
         if len(roles) > 0:
             role_missing = True
@@ -85,12 +96,12 @@ class TagBot(discord.Client):
             await user.remove_roles(role)
 
     async def on_guild_role_create(self, role):
-        if await self.getTagChannel(role.guild) == None: return
+        if await self.getTagsChannel(role.guild) == None: return
         print("on_guild_role_create")
         await self.createTagMessage(role)
 
     async def on_guild_role_delete(self, role):
-        if await self.getTagChannel(role.guild) == None: return
+        if await self.getTagsChannel(role.guild) == None: return
         print("on_guild_role_delete")
         for channel in role.guild.text_channels:
             if channel.name == CHANNEL_NAME:
@@ -100,12 +111,9 @@ class TagBot(discord.Client):
                         return
 
     async def createTagMessage(self, role):
-        channel = await self.getTagChannel(role.guild)
+        channel = await self.getTagChannels(role.guild)
         msg = await channel.send(content=role.mention)
         await msg.add_reaction('👍')
-
-    async def getTagChannel(self, guild):
-        return discord.utils.get(guild.text_channels, name=CHANNEL_NAME)
 
     def isTagsChannel(self, channel):
         if channel.name == CHANNEL_NAME:
