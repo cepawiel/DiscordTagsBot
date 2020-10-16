@@ -2,4 +2,4 @@
 docker build -t discord-tagbot .
 
 # Run
-docker run -e DISCORD_APIKEY=<API_KEY> discord-tagbot
+docker run -e DISCORD_APIKEY=<API_KEY> -it discord-tagbot
