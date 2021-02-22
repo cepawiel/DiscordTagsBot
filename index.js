@@ -62,6 +62,7 @@ client.on('ready', () => {
                         if (role.name == "@everyone")
                             return;
 
+                        console.log("Found role: " + role.name);
                         // check each message for role
                         channel.messages.fetch().then(messages => {
                             match = false
@@ -82,7 +83,7 @@ client.on('ready', () => {
                                         // clear members from roll
                                         console.log("Removing users from " + role.name);
                                         role.members.forEach(guildmember => {
-                                                guild.member(guildmember.id).roles.remove(role);
+                                                guild.member(guildmember.id).roles.remove(role).catch(console.error);
                                         });
 
                                         msg.reactions.cache.forEach(react => {
@@ -95,7 +96,7 @@ client.on('ready', () => {
 
                                                     console.log("Adding User " + user.tag +  " to " + role.name);
                                                     guild.members.fetch(user.id).then(guildmember => {
-                                                        guildmember.roles.add(role);
+                                                        guildmember.roles.add(role).catch(console.error);
                                                     });
                                                 });
                                             });
@@ -112,21 +113,26 @@ client.on('ready', () => {
                                     addReactionListeners(msg);
                                 });
                             }
+                        }).catch(err => {
+                            console.log(err);
                         });
                     });   
                 }
             });
+
         });
     });
     return;
 });
+
+console.log(Discord.version);
 
 min = process.env.RUNTIME;
 sec =  min * 60;
 ms = sec * 1000;
 console.log("Running for " + ms + "ms");
 client.login(process.env.DISCORD_APIKEY);
-setTimeout( () => {
-    console.log("Closing Client");
-    client.destroy();
-}, ms);
+// setTimeout( () => {
+//     console.log("Closing Client");
+//     client.destroy();
+// }, ms);
