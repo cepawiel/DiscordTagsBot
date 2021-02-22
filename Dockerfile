@@ -1,4 +1,6 @@
-FROM python:3
-RUN pip install discord.py
-RUN git clone https://github.com/cepawiel/DiscordTagsBot
-CMD ["python", "./DiscordTagsBot/main.py"]
+FROM node:14
+WORKDIR /opt/DiscordTagsBot/
+COPY package*.json ./
+RUN npm install
+COPY  . .
+CMD [ "node", "index.js"]
